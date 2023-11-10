@@ -11,32 +11,33 @@ class Assignment2:
 
     def run(self):
         self.load_images()
-        self.overlap_images()
-        self.save_images()
-        self.images_to_video()
+        
+        self.overlap_images(15)
+        self.save_images('5fps')
+        self.images_to_video('5fps', '5fps.mp4', 5)
+
+        self.overlap_images(60)
+        self.save_images('20fps')
+        self.images_to_video('20fps', '20fps.mp4', 20)
 
     def load_images(self):
         if not os.path.exists(self.directory):
             print(f"Directory '{self.directory}' does not exist.")
             return
 
-        for filename in os.listdir(self.directory):
+        for i in range(90):
+            file_path = os.path.join(self.directory, f'frame{i}.jpg')
             
-            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                file_path = os.path.join(self.directory, filename)
-                
-                try:
-                    image = Image.open(file_path)
-                    self.frames.append(image)
-                except Exception as e:
-                    print(f"Error loading image '{filename}': {e}")
+            try:
+                image = Image.open(file_path)
+                self.frames.append(image)
+            except Exception as e:
+                print(f"Error loading image '{filename}': {e}")
 
-    def overlap_images(self):
-        
-        for i in range(0, len(self.frames)):
-            if i % 3 == 2:
-                continue 
-
+    def overlap_images(self, resulting_frames):
+        self.result = []
+        jump = 1 if resulting_frames == 60 else 4
+        for i in range(20, len(self.frames)-10, jump):
             offset = (i * 10, i * 10)
 
             draw = ImageDraw.Draw(self.frames[i])
@@ -45,22 +46,22 @@ class Assignment2:
 
             self.result.append(self.frames[i])
 
-    def save_images(self):
-        if not os.path.exists('result'):
-            os.makedirs('result')
+    def save_images(self, file_name):
+        if not os.path.exists(file_name):
+            os.makedirs(file_name)
 
         for i in range(len(self.result)):
-            self.result[i].save(f'result\\{i}.png')
+            self.result[i].save(f'{file_name}\\{i}.png')
 
-    def images_to_video(self, fps=20):
+    def images_to_video(self, folder_name, vid_name, fps):
         first_img = self.result[0]
-        frame = cv2.imread(os.path.join('result\\', f"{0}.png"))
+        frame = cv2.imread(os.path.join(folder_name, f"{0}.png"))
         height, width, layers = frame.shape
 
-        video = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
+        video = cv2.VideoWriter(vid_name, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
 
         for i in range(len(self.result)):
-            img_path = os.path.join('result\\', f"{i}.png")
+            img_path = os.path.join(f'{folder_name}\\', f'{i}.png')
             img_array = cv2.imread(img_path)
             video.write(img_array)
 
