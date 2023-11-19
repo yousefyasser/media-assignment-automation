@@ -11,7 +11,7 @@ class Assignment2:
 
     def run(self):
         self.load_images()
-        
+
         self.overlap_images(15)
         self.save_images('5fps')
         self.images_to_video('5fps', '5fps.mp4', 5)
